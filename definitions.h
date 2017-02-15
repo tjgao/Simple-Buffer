@@ -24,19 +24,19 @@ template <typename T>
 struct one_byte_type { static const bool value = sizeof(T) == 1; };
 // end for endian ops
 
-// For type_holder types
+// To identify our serializable struct
 template <typename T>
-struct is_type_holder
+struct is_serializable_struct
 {
 private:
-	template <typename U> static auto has_type(int) -> decltype(std::declval<typename U::type_list>(), yes());
+	template <typename U> static auto has_type(int) -> decltype(std::declval<typename U::_trust_me_i_am_your_type_>(), yes());
 	template <typename U> static no has_type(...);
 public:
 	static const bool value = std::is_same<decltype(has_type<T>(0)), yes>::value;
 };
-// End for type_holder types
+// end for our serializable struct
 
-// For stl iterable container 
+// For stl iterable and modifable container 
 template <typename T>
 struct has_begin_end
 {
@@ -51,21 +51,24 @@ public:
 };
 
 template <typename T>
-struct has_iterator_type
+struct has_iterator_clear
 {
 private:
 	template <typename U> static auto test_iter(int) -> decltype(std::declval<typename U::iterator>(), yes());
 	template <typename U> static no test_iter(...);
+	template <typename U> static auto has_clear(int) -> decltype(std::declval<U>().clear(), yes());
+	template <typename U> static no has_clear(...);
 public:
-	static constexpr bool value = std::is_same<decltype(test_iter<T>(0)), yes>::value;
+	static constexpr bool value = std::is_same<decltype(test_iter<T>(0)), yes>::value
+								&& std::is_same<decltype(has_clear<T>(0)), yes>::value;
 };
 
 template <typename T>
-struct is_iterable_container
+struct is_modifiable_container
 {
-	const static bool value = has_begin_end<T>::value && has_iterator_type<T>::value;
+	const static bool value = has_begin_end<T>::value && has_iterator_clear<T>::value;
 };
-// End for stl iterable container
+// End for stl iterable and modifiable container
 
 
 // Network byte order operations for arithmetic types
@@ -97,10 +100,13 @@ struct endian_op<T, 8>
 
 // Remove head type from tuple
 template <typename T>
-struct remove_tuple_head{};
+struct remove_tuple_head{ typedef void type; };
 
 template <typename T, typename ...Ts>
-struct remove_tuple_head<std::tuple<T, Ts...>> {  typedef std::tuple<Ts...> type; };
+struct remove_tuple_head<std::tuple<T, Ts...>> 
+{  
+	typedef typename std::conditional<(std::tuple_size<std::tuple<Ts...>>::value > 0), std::tuple<Ts...>, std::tuple<>>::type type; 
+};
 // end remove head for tuple
 }
 #endif // end of SIMPLE_BUFFER_CONDITIONS_DEF
