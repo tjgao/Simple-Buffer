@@ -102,16 +102,20 @@ public:
 	static size_t size(const char* data, const T& t)
 	{ return sizeof(T); }
 private:
+	typedef typename matched_uint<sizeof(T)>::type int_type;
 	// read in network byte order
 	static size_t read_impl(const char* data, T& t, std::true_type)
-	{ t = endian_op<T, sizeof(T)>::ntoh(*((const T*)data)); return sizeof(T); }
+	{ 
+		t = endian_op<T, sizeof(T)>::ntoh(*((const int_type*)data)); 
+		return sizeof(T); 
+	}
 	// just read it
 	static size_t read_impl(const char* data, T& t, std::false_type)
 	{ t = *((T*)data); return sizeof(T); }
 
 	// write in network byte order
 	static size_t write_impl(char* data, const T& t, std::true_type)
-	{ *((T*)data) = endian_op<T, sizeof(T)>::hton(t); return sizeof(T); }
+	{ int_type i = endian_op<T, sizeof(T)>::hton(t); memcpy(data, &i, sizeof(T)); return sizeof(T); }
 	// just write it
 	static size_t write_impl(char* data, const T& t, std::false_type)
 	{ *((T*)data) = t; return sizeof(T); }

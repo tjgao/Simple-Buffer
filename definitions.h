@@ -72,28 +72,46 @@ struct is_modifiable_container
 
 
 // Network byte order operations for arithmetic types
+template <size_t N>
+struct matched_uint {};
+
+template <>
+struct matched_uint<1> { typedef uint8_t type; };
+
+template <>
+struct matched_uint<2> { typedef uint16_t type; };
+
+template <>
+struct matched_uint<4> { typedef uint32_t type; };
+
+template <>
+struct matched_uint<8> { typedef uint64_t type; };
+
 template <typename T, size_t N>
 struct endian_op {};
 
 template <typename T>
 struct endian_op<T, 2> 
 {
-	static T ntoh(T t) { return (T)ntohs(t); }
-	static T hton(T t) { return (T)htons(t); }
+	typedef typename matched_uint<2>::type int_type;
+	static T ntoh(int_type t) { t = ntohs(t); T* p = (T*)&t; return *p; }
+	static int_type hton(T t) { int_type* p = (int_type*)&t; return (int_type)htons(*p); }
 };
 
 template <typename T>
 struct endian_op<T, 4> 
 {
-	static T ntoh(T t) { return (T)ntohl(t); }
-	static T hton(T t) { return (T)htonl(t); }
+	typedef typename matched_uint<4>::type int_type;
+	static T ntoh(int_type t) { t = ntohl(t); T *p = (T*)&t; return *p; }
+	static int_type hton(T t) { int_type* p = (int_type*)&t; return (int_type)htonl(*p); }
 };
 
 template <typename T>
 struct endian_op<T, 8> 
 {
-	static T ntoh(T t) { return (T)ntohll(t); }
-	static T hton(T t) { return (T)htonll(t); }
+	typedef typename matched_uint<8>::type int_type;
+	static T ntoh(int_type t) { t = ntohll(t); T *p = (T*)&t; return *p; }
+	static int_type hton(T t) { int_type* p = (int_type*)&t; return (int_type)htonll(*p); }
 };
 // End for endian ops
 

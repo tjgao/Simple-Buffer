@@ -3,6 +3,9 @@
 #include <iostream>
 #include <map>
 #include <array>
+#include <set>
+#include <iomanip>
+#include <unordered_set>
 #include "definitions.h"
 #include "struct.h"
 #include "buffer.h"
@@ -14,7 +17,6 @@ struct my_packet
 {
 	FIELD_START();
 	FIELD(a, uint8_t);
-	FIELD(i, uint8_t);
 	FIELD(b, uint32_t);
 	FIELD(c, std::string);
 	FIELD(d, std::array<int, 3>);
@@ -22,6 +24,8 @@ struct my_packet
 	FIELD(f, std::map<std::string, std::vector<int>>);
 	FIELD(g, std::tuple<std::string, std::pair<int, std::string>>);
 	FIELD(h, double);
+	FIELD(i, uint8_t);
+	FIELD(j, std::unordered_set<std::string>)
 	FIELD_END();
 
 	void fill()
@@ -32,12 +36,12 @@ struct my_packet
 		std::get<0>(g) = "This is the tuple head";
 		std::get<1>(g) = std::pair<int, std::string>(1111,"second elem of a pair");
 		h = 1234.45678;
+		j = {"Artarmon", "Campsie", "Chatswood", "Eastwood", "Lane Cove"};
 	}
 
 	void show()
 	{
 		std::cout << "a = " << std::hex << int(a) << std::endl;
-		std::cout << "i = " << std::hex << int(i) << std::endl;
 		std::cout << "b = " << std::hex << int(b) << std::endl;
 		std::cout << "c = " << c << std::endl;
 		std::cout << "d = ";
@@ -52,9 +56,13 @@ struct my_packet
 			for (auto& b : a.second) std::cout << b << " ";
 			std::cout << std::endl;
 		}
-		std::cout.precision(10);
-		std::cout << "g = " << std::get<0>(g) << " | " << std::get<1>(g).first << ":" << std::defaultfloat << std::get<1>(g).second << std::endl;
-		std::cout << "h = " << h << std::endl;
+		std::setprecision(4);
+		std::cout << "g = " << std::get<0>(g) << " | " << std::get<1>(g).first << ":" << std::get<1>(g).second << std::endl;
+		std::cout << "h = " << std::fixed << h << std::endl;
+		std::cout << "i = " << std::hex << int(i) << std::endl;
+		std::cout << "j = " ; 
+		for (auto& a : j) std::cout << a << " ";
+		std::cout << std::endl;
 	}
 };
 
