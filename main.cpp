@@ -5,16 +5,40 @@
 #include <array>
 #include <set>
 #include <iomanip>
+#include <list>
 #include <unordered_set>
-#include "definitions.h"
 #include "struct.h"
 #include "buffer.h"
 
 
 using namespace simple_buffer;
 
+/*
+Support STL containers, vector, map, set, list, tuple, pair, array, stack, deque, queue ...
+std::string
+fundamental types and raw arrays (no limit to the extent and rank)
+and our serializable structs equipped with those macros (there is no difference between an integer 
+type and our serializable struct type)
+
+Currently pointers are not supported. It is possible, but can be much more compilicated, 
+as pointers can form loops and they can point to the same object
+
+Can support user defined types if the corresponding read/write code is provided.
+
+Other members can be added after the FIELD_END macro, but they will not be serialized/deserialized. 
+ 
+*/
+
 struct my_packet
 {
+	struct inner_packet
+	{
+		FIELD_START();
+		FIELD(x, int);
+		FIELD(y, std::list<int>);
+		ARRAY(z, [5], char);
+		FIELD_END();
+	};
 	FIELD_START();
 	FIELD(a, uint8_t);
 	FIELD(b, uint32_t);
@@ -25,7 +49,8 @@ struct my_packet
 	FIELD(g, std::tuple<std::string, std::pair<int, std::string>>);
 	FIELD(h, double);
 	FIELD(i, uint8_t);
-	FIELD(j, std::unordered_set<std::string>)
+	FIELD(j, inner_packet);
+	FIELD(k, std::unordered_set<std::string>);
 	FIELD_END();
 
 	void fill()
@@ -36,7 +61,8 @@ struct my_packet
 		std::get<0>(g) = "This is the tuple head";
 		std::get<1>(g) = std::pair<int, std::string>(1111,"second elem of a pair");
 		h = 1234.45678;
-		j = {"Artarmon", "Campsie", "Chatswood", "Eastwood", "Lane Cove"};
+		j = {999, {1,2,3,4,5,6}, {'a','b','c','d'}};
+		k = {"Artarmon", "Campsie", "Chatswood", "Eastwood", "Lane Cove"};
 	}
 
 	void show()
@@ -60,8 +86,15 @@ struct my_packet
 		std::cout << "g = " << std::get<0>(g) << " | " << std::get<1>(g).first << ":" << std::get<1>(g).second << std::endl;
 		std::cout << "h = " << std::fixed << h << std::endl;
 		std::cout << "i = " << std::hex << int(i) << std::endl;
-		std::cout << "j = " ; 
-		for (auto& a : j) std::cout << a << " ";
+		std::cout << "j.x = " << std::dec << j.x << std::endl;
+		std::cout << "j.y = ";
+		for (auto& el : j.y) std::cout << el << " ";
+		std::cout << std::endl; 
+		std::cout << "j.z = " << " ";
+		for (int idx = 0; idx < sizeof(j.z); idx++) std::cout << j.z[idx] << " ";
+		std::cout << std::endl;
+		std::cout << "k = " ; 
+		for (auto& a : k) std::cout << a << " ";
 		std::cout << std::endl;
 	}
 };
@@ -72,10 +105,18 @@ int main()
 
 	my_packet mp1;
 	mp1.fill();
-	ab.write<my_packet>(mp1);
+	ab.write(mp1);
 
 	my_packet mp2;
-	ab.read<my_packet>(mp2);
+	ab.read(mp2);
 	mp2.show();
 
+	std::cout <<"------ " << std::endl;
+	//Or just some normal containers
+	std::vector<std::string> vs{"vector", "string", "tuple"};
+	ab.write(vs);
+	decltype(vs) vvss;
+	ab.read(vvss);
+	for (auto& s : vvss) std::cout << s << " ";
+	std::cout << std::endl;
 }

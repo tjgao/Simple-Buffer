@@ -10,7 +10,7 @@ typedef std::false_type no;
 
 // Alignment size for struct field
 template <typename T>
-struct field_size
+struct field_aligned_size
 {
 	static const size_t value = sizeof(T) + (sizeof(void*) - sizeof(T) % sizeof(void*)) % sizeof(void*);
 };
@@ -19,9 +19,6 @@ struct field_size
 // Condition for endian ops
 template <typename T, bool E>
 struct use_network_byteorder { static const bool value = E && std::is_arithmetic<T>::value && sizeof(T) > 1; };
-
-template <typename T>
-struct one_byte_type { static const bool value = sizeof(T) == 1; };
 // end for endian ops
 
 // To identify our serializable struct

@@ -48,7 +48,7 @@ private:
 		HeadType& t = *(reinterpret_cast<HeadType*>(obj));
 		size_t sz = rw_worker<HeadType, E, HeadType>::read(data, t);
 		data += sz;
-		obj += field_size<HeadType>::value;
+		obj += field_aligned_size<HeadType>::value;
 		typedef typename remove_tuple_head<U>::type tail;
 		typedef typename std::conditional<(std::tuple_size<tail>::value > 0), yes, no>::type bool_type;
 		return sz + read<tail>(data, obj, bool_type());
@@ -61,7 +61,7 @@ private:
 		const HeadType& t = *(reinterpret_cast<const HeadType*>(obj));
 		size_t sz = rw_worker<HeadType, E, HeadType>::write(data, t);
 		data += sz;
-		obj += field_size<HeadType>::value;
+		obj += field_aligned_size<HeadType>::value;
 		typedef typename remove_tuple_head<U>::type tail;
 		typedef typename std::conditional<(std::tuple_size<tail>::value > 0), yes, no>::type bool_type;
 		return sz + write<tail>(data, obj, bool_type());
@@ -74,7 +74,7 @@ private:
 		const HeadType& t = *(reinterpret_cast<const HeadType*>(obj));
 		size_t sz = rw_worker<HeadType, E, HeadType>::size(data, t);
 		data += sz;
-		obj += field_size<HeadType>::value;
+		obj += field_aligned_size<HeadType>::value;
 		typedef typename remove_tuple_head<U>::type tail;
 		typedef typename std::conditional<(std::tuple_size<tail>::value > 0), yes, no>::type bool_type;
 		return sz + size<tail>(data, obj, bool_type());
