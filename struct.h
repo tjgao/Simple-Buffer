@@ -9,15 +9,16 @@ namespace simple_buffer
 
 #define FIELD_START()																													\
 struct sentinel{};																														\
-template <size_t N, bool dummy>	                  																						\
-struct field_mark{ typedef void type; };                   																				\
+template <size_t N, bool dummy>	struct field_mark{ typedef void type; };           														\
 template<bool dummy> struct field_mark<__LINE__, dummy>{ typedef sentinel type;};														\
 
 
-#define FIELD(name, ...) alignas(sizeof(void*)) __VA_ARGS__ name;                              											\
+#define FIELD(name, ...) 																												\
+alignas(sizeof(void*)) __VA_ARGS__ name;                              																	\
 template <bool dummy> struct field_mark<__LINE__, dummy> { typedef __VA_ARGS__ type; };
 
-#define ARRAY(name, extent, ...) alignas(sizeof(void*)) __VA_ARGS__ name extent;														\
+#define ARRAY(name, extent, ...)																										\
+alignas(sizeof(void*)) __VA_ARGS__ name extent;																							\
 template <bool dummy> struct field_mark<__LINE__, dummy> { typedef decltype(name) type; };
 
 

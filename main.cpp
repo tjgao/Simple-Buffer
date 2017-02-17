@@ -14,10 +14,10 @@
 using namespace simple_buffer;
 
 /*
-Support STL containers, vector, map, set, list, tuple, pair, array, stack, deque, queue ...
+Support STL containers, vector, map, set, list, tuple, pair, array, deque
 std::string
-fundamental types and raw arrays (no limit to the extent and rank)
-and our serializable structs equipped with those macros (there is no difference between an integer 
+fundamental types and raw arrays (without limit to the extent and rank)
+and our serializable structs equipped with FIELD macros (there is no difference between an integer 
 type and our serializable struct type)
 
 Currently pointers are not supported. It is possible, but can be much more compilicated, 
@@ -25,7 +25,7 @@ as pointers can form loops and they can point to the same object
 
 Can support user defined types if the corresponding read/write code is provided.
 
-Other members can be added after the FIELD_END macro, but they will not be serialized/deserialized. 
+Normal members can be added after the FIELD_END macro, but they will not be serialized/deserialized. 
  
 */
 
