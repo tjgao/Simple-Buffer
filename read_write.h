@@ -253,29 +253,29 @@ struct rw_worker<std::pair<U, V>, E, std::pair<U, V>>
 {
 	static size_t read(const char* data, std::pair<U, V>& t)
 	{
-		typedef typename std::remove_cv<U>::type FirstT; 
-		typedef typename std::remove_cv<V>::type SecondT; 
+		typedef typename std::remove_cv<U>::type first_type; 
+		typedef typename std::remove_cv<V>::type second_type; 
 		const char* old = data;
-		data += rw_worker<FirstT, E, FirstT>::read(data, (FirstT&)t.first);
-		data += rw_worker<SecondT, E, SecondT>::read(data, t.second);
+		data += rw_worker<first_type, E, first_type>::read(data, (first_type&)t.first);
+		data += rw_worker<second_type, E, second_type>::read(data, t.second);
 		return data - old;
 	}
 	static size_t write(char* data, const std::pair<U, V>& t)
 	{
-		typedef typename std::remove_cv<U>::type FirstT; 
-		typedef typename std::remove_cv<V>::type SecondT; 
+		typedef typename std::remove_cv<U>::type first_type; 
+		typedef typename std::remove_cv<V>::type second_type; 
 		const char* old = data;
-		data += rw_worker<FirstT, E, FirstT>::write(data, t.first);
-		data += rw_worker<SecondT, E, SecondT>::write(data, t.second);
+		data += rw_worker<first_type, E, first_type>::write(data, t.first);
+		data += rw_worker<second_type, E, second_type>::write(data, t.second);
 		return data - old;
 	}
 	static size_t size(const char* data, const std::pair<U,V>& t)
 	{
-		typedef typename std::remove_cv<U>::type FirstT; 
-		typedef typename std::remove_cv<V>::type SecondT; 
+		typedef typename std::remove_cv<U>::type first_type; 
+		typedef typename std::remove_cv<V>::type second_type; 
 		const char* old = data;
-		data += rw_worker<FirstT, E, FirstT>::size(data, t.first);
-		data += rw_worker<SecondT, E, SecondT>::size(data, t.second);
+		data += rw_worker<first_type, E, first_type>::size(data, t.first);
+		data += rw_worker<second_type, E, second_type>::size(data, t.second);
 		return data - old;
 	}
 };
