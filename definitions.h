@@ -3,6 +3,15 @@
 
 #include <type_traits>
 
+#ifdef __MINGW32__
+#include "Winsock2.h"
+#endif
+#ifdef __linux__
+#include <arpa/inet.h>
+#define htonll(x) ((((uint64_t)htonl(x)) << 32) + htonl(x >> 32))
+#define ntohll(x) ((((uint64_t)ntohl(x)) << 32) + ntohl(x >> 32))
+#endif
+
 namespace simple_buffer
 {
 typedef std::true_type yes;
@@ -91,7 +100,7 @@ template <typename T>
 struct endian_op<T, 2> 
 {
 	typedef typename matched_uint<2>::type int_type;
-	static T ntoh(int_type t) { t = ntohs(t); T* p = (T*)&t; return *p; }
+	static T ntoh(int_type t) { t = (int_type)ntohs(t); T* p = (T*)&t; return *p; }
 	static int_type hton(T t) { int_type* p = (int_type*)&t; return (int_type)htons(*p); }
 };
 
@@ -99,7 +108,7 @@ template <typename T>
 struct endian_op<T, 4> 
 {
 	typedef typename matched_uint<4>::type int_type;
-	static T ntoh(int_type t) { t = ntohl(t); T *p = (T*)&t; return *p; }
+	static T ntoh(int_type t) { t = (int_type)ntohl(t); T *p = (T*)&t; return *p; }
 	static int_type hton(T t) { int_type* p = (int_type*)&t; return (int_type)htonl(*p); }
 };
 
@@ -107,7 +116,7 @@ template <typename T>
 struct endian_op<T, 8> 
 {
 	typedef typename matched_uint<8>::type int_type;
-	static T ntoh(int_type t) { t = ntohll(t); T *p = (T*)&t; return *p; }
+	static T ntoh(int_type t) { t = (int_type)ntohll(t); T *p = (T*)&t; return *p; }
 	static int_type hton(T t) { int_type* p = (int_type*)&t; return (int_type)htonll(*p); }
 };
 // End for endian ops

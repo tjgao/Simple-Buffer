@@ -1,8 +1,8 @@
 #ifndef SIMPLE_BUFFER_READ_WRITE_DEF
 #define SIMPLE_BUFFER_READ_WRITE_DEF
 #include <type_traits>
+#include <cstring>
 #include "definitions.h"
-#include <typeinfo>
 namespace simple_buffer
 {
 
@@ -115,7 +115,7 @@ private:
 
 	// write in network byte order
 	static size_t write_impl(char* data, const T& t, std::true_type)
-	{ int_type i = endian_op<T, sizeof(T)>::hton(t); memcpy(data, &i, sizeof(T)); return sizeof(T); }
+	{ int_type i = endian_op<T, sizeof(T)>::hton(t); std::memcpy(data, &i, sizeof(T)); return sizeof(T); }
 	// just write it
 	static size_t write_impl(char* data, const T& t, std::false_type)
 	{ *((T*)data) = t; return sizeof(T); }
@@ -139,7 +139,7 @@ struct rw_worker<std::string, E, std::string>
 	{
 		rw_worker<uint32_t, E, uint32_t>::write(data, (uint32_t)t.size());
 		data += sizeof(uint32_t);
-		memcpy(data, t.data(), t.size());
+		std::memcpy(data, t.data(), t.size());
 		return sizeof(uint32_t) + t.size();
 	}
 
