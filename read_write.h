@@ -178,6 +178,7 @@ struct rw_worker<T, E, typename std::enable_if<is_modifiable_container<T>::value
 	static size_t size(const char* data, const T& t) 
 	{
 		const char* old = data;
+		data += sizeof(uint32_t);
 		for (auto& i : t)
 			data += rw_worker<typename T::value_type, E, typename T::value_type>::size(data, i);
 		return data - old;
